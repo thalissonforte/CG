@@ -98,38 +98,49 @@ public:
         cor->Aplica();
 
         if(tipo == 2){ // CIRCULO
-            int x = (int) Xs[0];
-            int y = (int) Ys[0];
+            float x = (getXsRot())[0];
+            float y = (getYsRot())[0];
 
             if(modo_fill) circleFill(x, y, raio, DIV_DEFAULT);
             else circle(x, y, raio, DIV_DEFAULT);
 
         }else if(tipo == 1){
 
-            float xs[4];
-            float ys[4];
+            float *xs = getXsRot();
+            float *ys = getYsRot();
 
-            for(int i=0; i<qnt_coord_x; i++){
-                xs[i] = Xs[i] * cos(rotacao*PI/4) - Ys[i] * sin(rotacao*PI/4);
-                ys[i] = Xs[i] * sin(rotacao*PI/4) + Ys[i] * cos(rotacao*PI/4);
-
-                printf("\nX:%f Y:%f", xs[i], ys[i]);
-            }
-            printf("\n\n");
             if(modo_fill) polygonFill(xs, ys, 4);
             else polygon(xs, ys, 4);
         }
     }
 
     bool Colidiu(int x, int y){
+
+        float *xs = getXsRot();
+        float *ys = getYsRot();
+
         if(tipo == 1){
-            if( (x >= Xs[0]) && (x <= Xs[2]) && (y >= Ys[0]) && (y <= Ys[2]) ){
+            // COLIDIU FIGURA
+            float x_maior, x_menor, y_maior, y_menor;
+            x_maior = xs[0];
+            x_menor = xs[0];
+            y_maior = ys[0];
+            y_menor = ys[0];
+
+            for(int i=0; i<qnt_coord_x; i++){
+                if(x_maior < xs[i]) x_maior = xs[i];
+                if(x_menor > xs[i]) x_menor = xs[i];
+                if(y_maior < ys[i]) y_maior = ys[i];
+                if(y_menor > ys[i]) y_menor = ys[i];
+            }
+
+            if( (x >= x_menor) && (x <= x_maior) && (y >= y_menor) && (y <= y_maior) ){
                 return true;
             }
         }
 
         if(tipo == 2){
-            int _x = Xs[0], _y = Ys[0];
+            int _x = xs[0], _y = ys[0];
             // (xA – a)^2 + (yA – b)^2 < r^2
             if( (pow((x - _x), 2) + pow((y - _y), 2)) < pow(raio, 2) ){
                 return true;
@@ -137,6 +148,59 @@ public:
         }
 
         return false;
+    }
+
+    int ColidiuHold(int x, int y){
+
+        float *xs = getXsRot();
+        float *ys = getYsRot();
+        float x_medio, y_medio;
+        int tam = 4;
+
+        // COLIDIU HOLD
+        for(int i=0; i<qnt_coord_x; i++){
+            if(tipo == 1){
+                x_medio = (xs[i%4] + xs[(i+1)%4]) / 2;
+                y_medio = (ys[i%4] + ys[(i+1)%4]) / 2;
+            }
+
+            if(tipo == 2){
+                x_medio = xs[0] + sin(i*PI/2)*raio;
+                y_medio = ys[0] + cos(i*PI/2)*raio;
+            }
+
+            if(abs(x_medio - x) < tam && abs(y_medio - y) < tam){
+                return i + 1;
+            }
+        }
+
+        return -1;
+
+    }
+
+    void addXResize(int qtd, int lado){
+        //printf("\nLado %i: %i", lado, qtd);
+        if(tipo == 1){
+            for(int i = 0; i < 2; i++){
+                if(lado == 1 || lado == 3){
+                    Xs[(i + lado - 1)%4] += qtd;
+                    //Xs[(i + lado - 1)%4] += qtd;
+                }
+            }
+        }
+        if(tipo == 2){
+            raio += qtd;
+        }
+    }
+
+    void addYResize(int qtd, int lado){
+        if(tipo == 1){
+            for(int i = 0; i < 2; i++){
+                if(lado == 2 || lado == 4){
+                    Ys[(i + lado - 1)%4] += qtd;
+                }
+            }
+        }
     }
 
     void setFill(Cor *c){
@@ -162,6 +226,49 @@ public:
         return Ys;
     }
 
+    float getXMedio(){
+        int cont = 0;
+        float c = 0;
+        for(int i=0; i<qnt_coord_x; i++){
+            c += Xs[i];
+            cont++;
+        }
+        return (c/cont);
+    }
+
+    float getYMedio(){
+        int cont = 0;
+        float c = 0;
+        for(int i=0; i<qnt_coord_y; i++){
+            c += Ys[i];
+            cont++;
+        }
+        return (c/cont);
+    }
+
+    float distanciaPontos(float x1, float y1, float x2, float y2){
+        return (sqrt(pow((x2-x1),2) + pow((y2-y1),2)));
+    }
+
+    float* getXsRot(){
+        float *xs = (float*)malloc(qnt_coord_x * sizeof(float));
+        float x_medio = getXMedio();
+        float y_medio = getYMedio();
+        for(int i=0; i < qnt_coord_x; i++){
+            xs[i] = (Xs[i]-x_medio) * cos(rotacao*PI/4) - (Ys[i]-y_medio) * sin(rotacao*PI/4) + x_medio;
+        }
+        return xs;
+    }
+    float* getYsRot(){
+        float *ys = (float*)malloc(qnt_coord_y * sizeof(float));
+        float x_medio = getXMedio();
+        float y_medio = getYMedio();
+        for(int i=0; i < qnt_coord_y; i++){
+            ys[i] = (Xs[i]-x_medio) * sin(rotacao*PI/4) + (Ys[i]-y_medio) * cos(rotacao*PI/4) + y_medio;
+        }
+        return ys;
+    }
+
     void addX(int qtd_x){
         for(int i=0; i<qnt_coord_x; i++){
             Xs[i] += qtd_x;
@@ -174,36 +281,26 @@ public:
         }
     }
 
-    void atualizaCoords(){
-        printf("\n\n");
-
-        float ponto_medio_x, ponto_medio_y;
-        int raio;
-        if(tipo == 1){
-            ponto_medio_x = (Xs[0] + Xs[2]) / 2;
-            ponto_medio_y = (Ys[0] + Ys[2]) / 2;
-            raio = abs(ponto_medio_x);
-        }
-        if(tipo == 2){
-            ponto_medio_x = Xs[0];
-            ponto_medio_y = Ys[0];
-        }
-
-
-
-        for(int i=0; i<qnt_coord_x; i++){
-            Xs[i] = Xs[i] * cos(PI/4) - Ys[i] * sin(PI/4);
-            Ys[i] = Xs[i] * sin(PI/4) + Ys[i] * cos(PI/4);
-
-            printf("%f\t", Xs[i]);
-            printf("%f\t", Ys[i]);
-        }
-    }
-
     void addRotacao(int i){
         rotacao += i;
         printf("\nRotacao: %i", rotacao);
         //atualizaCoords();
+    }
+
+    float * getCoord(){
+        return coord;
+    }
+
+    int getQntCoords(){
+        return qtd_coords;
+    }
+
+    bool getFill(){
+        return modo_fill;
+    }
+
+    Cor *getCor(){
+        return cor;
     }
 
 };

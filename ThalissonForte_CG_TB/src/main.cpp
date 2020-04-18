@@ -62,6 +62,7 @@ Botao *btRotEsquerda = NULL;
 Botao *btRotDireita = NULL;
 
 int figura_selecionada = -1;
+int redimensionar = -1; // 1 - ESQUERDA, 2 - CIMA, 3 - DIREITA, 4 - BAIXO
 
 Cor *corSelecionada = preto;
 
@@ -70,6 +71,8 @@ bool fillSelect = false;
 bool modoHold = false;
 int inicioHoldX = -1;
 int inicioHoldY = -1;
+
+FILE *arquivo;
 /* Cores atuais
 int exibe_red = 1;
 int exibe_green = 1;
@@ -81,6 +84,7 @@ long int maximo = 0;
 void criaRetangulo(float x1, float y1, float x2, float y2, Cor* corz, bool fill_);
 void criaCirculo(float x, float y, float raio, Cor* corz, bool fill_);
 void exibeImg(int offset_X, int offset_Y, Bmp *img);
+void salvarArquivo();
 
 // variavel global para selecao do que sera exibido na canvas
 int opcao  = 50;
@@ -107,10 +111,6 @@ void DrawMouseScreenCoords(){
     //text(50,50,str);
 }
 
-float distanciaPontos(float x1, float y1, float x2, float y2){
-   return (sqrt(pow((x2-x1),2) + pow((y2-y1),2)));
-}
-
 void desenhaTela(){
 
    // FUNDO
@@ -120,7 +120,6 @@ void desenhaTela(){
       // PARTE DESENHAVEL
    color(1,1,1);
    rectFill(80,60, screenWidth-30, screenHeight-30);
-
 
    color(0.54,0.54,0.54);
    rect(80,60, screenWidth-30, screenHeight-30);
@@ -144,8 +143,8 @@ void desenhaSelecao(){
    Figura *fig = figura[figura_selecionada];
    int t = fig->getTipo();
 
-   float *xs = fig->getXs();
-   float *ys = fig->getYs();
+   float *xs = fig->getXsRot();
+   float *ys = fig->getYsRot();
    int tam = 3;
    float x_medio, y_medio;
 
@@ -219,7 +218,7 @@ void render(){
    // BOTÕES
    desenhaBotoes();
    exibeImg(13, 432, fillImg);
-   
+
    for(int i=0; i<QTD_FIGURAS; i++){
       figura[i]->desenhaFigura();
    }
@@ -228,10 +227,17 @@ void render(){
 
    // DESENHO SELECAO
    desenhaSelecao();
-   
+
    if(modoHold && figura_selecionada != -1){
-      figura[figura_selecionada]->addX(mouseX - inicioHoldX);
-      figura[figura_selecionada]->addY(mouseY - inicioHoldY);
+      if(redimensionar != -1){
+         if(redimensionar == 1 || redimensionar == 3) figura[figura_selecionada]->addXResize(mouseX - inicioHoldX, redimensionar);
+         if(redimensionar == 2 || redimensionar == 4) figura[figura_selecionada]->addYResize(mouseY - inicioHoldY, redimensionar);
+      }else{
+         figura[figura_selecionada]->addX(mouseX - inicioHoldX);
+         figura[figura_selecionada]->addY(mouseY - inicioHoldY);
+      }
+
+
       inicioHoldX = mouseX;
       inicioHoldY = mouseY;
    }
@@ -247,7 +253,7 @@ void keyboard(int key){
 
    switch(key){
       case 27: // ESC
-
+         salvarArquivo();
          exit(0);
       break;
 
@@ -284,6 +290,10 @@ void keyboard(int key){
          if(figura_selecionada != -1) removeFigura(figura_selecionada);
       break;
 
+      case 102:
+         fillSelect = !fillSelect;
+      break;
+
 
    }
 }
@@ -295,6 +305,12 @@ void keyboardUp(int key){
 
 bool colidiuFiguras(int x, int y){
 
+   if(figura_selecionada != -1){
+      if((redimensionar = figura[figura_selecionada]->ColidiuHold(x, y)) != -1){
+         printf("\nRedimensionar");
+      }
+   }
+
    for(int i=QTD_FIGURAS-1; i>=0; i--){
       if(figura[i]->Colidiu(x, y)){
          printf("\nColidiu figura[%i]", i);
@@ -305,7 +321,7 @@ bool colidiuFiguras(int x, int y){
             fillSelect = false;
             figura_selecionada = -1;
          }
-         
+
          return true;
       }
    }
@@ -322,32 +338,34 @@ void mouse(int button, int state, int wheel, int direction, int x, int y){
    //printf("\nmouse %d %d %d %d %d %d", button, state, wheel, direction,  x, y);
 
    if (state == 0){ //clicou
-      
+
       modoHold = true;
       inicioHoldX = mouseX;
       inicioHoldY = mouseY;
 
-       if(btAddRetangulo->Colidiu(x, y)){
+
+
+      if(btAddRetangulo->Colidiu(x, y)){
          printf("\nCriando Retangulo\n");
          criaRetangulo(300, 300, 500, 400, corSelecionada, false);
-       }
+      }
 
-       if(btAddCirculo->Colidiu(x, y)){
+      if(btAddCirculo->Colidiu(x, y)){
          printf("\nCriando Circulo\n");
          criaCirculo(200, 200, 50, corSelecionada, false);
-       }
+      }
 
-       if(btRotEsquerda->Colidiu(x, y)){
+      if(btRotEsquerda->Colidiu(x, y)){
          if(figura_selecionada != -1){
             figura[figura_selecionada]->addRotacao(1);
          }
-       }
+      }
 
-       if(btRotDireita->Colidiu(x, y)){
+      if(btRotDireita->Colidiu(x, y)){
          if(figura_selecionada != -1){
             figura[figura_selecionada]->addRotacao(-1);
          }
-       }
+      }
 
 
 
@@ -389,6 +407,8 @@ void mouse(int button, int state, int wheel, int direction, int x, int y){
           //figura_selecionada = -1;
        }
 
+
+
       if(btFill->Colidiu(x, y)){
          fillSelect = !fillSelect;
        }
@@ -416,6 +436,7 @@ void mouse(int button, int state, int wheel, int direction, int x, int y){
    if(state == 1){
       // SOLTOU
       modoHold = false;
+      redimensionar = -1;
    }
 }
 
@@ -498,8 +519,51 @@ void criaRetangulo(float x1, float y1, float x2, float y2, Cor* corz, bool fill_
    QTD_FIGURAS++;
 }
 
+void salvarArquivo(){
+
+   if(QTD_FIGURAS > 0){
+      if((arquivo = fopen("banco_de_figuras.txt", "w")) == NULL){ /* Abre arquivo binário para escrita */
+         printf("Erro na abertura do arquivo");
+         exit(1);
+      }
+
+      fprintf(arquivo, "%i\n", QTD_FIGURAS);
+
+      //if(fwrite(&QTD_FIGURAS, sizeof(int), 1, arquivo) != 1) print("Erro na escrita do arquivo");
+
+      for(int i = 0 ; i < QTD_FIGURAS; i++){
+         fprintf(arquivo, "%i ", figura[i]->getTipo());
+         fprintf(arquivo, "%i ", figura[i]->getCoord());
+         fprintf(arquivo, "%i ", figura[i]->getQntCoords());
+         fprintf(arquivo, "%i ", figura[i]->getCor());
+         fprintf(arquivo, "%i\n", figura[i]->getFill());
+      }
+
+      fclose(arquivo);
+      //exit(1);
+   }
+}
+
 void inicializaFiguras(){
    figura = (Figura**)malloc(sizeof(Figura*)); //CRIANDO VETOR
+
+
+
+
+   /*
+   if((arquivo = fopen("banco_de_figuras.bin", "rb")) == NULL) /* Abre o arquivo novamente para leitura
+         {
+            printf("Erro na abertura do arquivo");
+            exit(1);
+         }
+   if(fread(&pilido, sizeof(float), 1,arquivo) != 1)  /* Le em pilido o valor da variável armazenada anteriormente
+         printf("Erro na leitura do arquivo");
+   printf("\nO valor de PI, lido do arquivo e': %f", pilido);
+   fclose(arquivo);
+   return 0;
+   */
+
+
 }
 
 int main(void){
