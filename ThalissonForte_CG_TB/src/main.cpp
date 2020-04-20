@@ -593,7 +593,7 @@ void criaHexagono(float x, float y, float raio, Cor* corz, bool fill_, int rot){
 // FUNCAO QUE SALVA AS FIGURAS EM UM ARQUIVO
 void salvarArquivo(){
    if(QTD_FIGURAS > 0){
-      if((arquivo = fopen("figuras.gr", "w")) == NULL){ /* Abre arquivo binário para escrita */
+      if((arquivo = fopen("figuras.gr", "w")) == NULL){ /* Abre arquivo para escrita */
          printf("Erro na abertura do arquivo");
          exit(1);
       }
