@@ -20,6 +20,18 @@ public:
       color(r, g, b);
   }
 
+  float getR(){
+    return r;
+  }
+
+  float getG(){
+    return g;
+  }
+
+  float getB(){
+    return b;
+  }
+
 };
 
 /* Algumas cores default */

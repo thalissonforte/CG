@@ -44,4 +44,36 @@ public:
 
 };
 
+  /* Botões utilizados*/
+  Botao *btPreto = NULL;
+  Botao *btBranco = NULL;
+
+  Botao *btCinzaForte = NULL;
+  Botao *btCinza = NULL;
+
+  Botao *btVermelho = NULL;
+  Botao *btAmarelo = NULL;
+
+  Botao *btVerde = NULL;
+  Botao *btAzul = NULL;
+
+  Botao *btRosa = NULL;
+  Botao *btRoxo = NULL;
+
+  Botao *btAddRetangulo = NULL;
+  Botao *btAddCirculo = NULL;
+  Botao *btAddTriangulo = NULL;
+  Botao *btAddHexagono = NULL;
+
+  Botao *btFill = NULL;
+  Botao *btRotEsquerda = NULL;
+  Botao *btRotDireita = NULL;
+
+  Botao *btFrente = NULL;
+  Botao *btTras = NULL;
+
+  Botao *btSalvar = NULL;
+  Botao *btSair = NULL;
+  Botao *btLimpar = NULL;
+
 #endif

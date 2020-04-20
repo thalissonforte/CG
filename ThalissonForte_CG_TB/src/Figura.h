@@ -3,7 +3,7 @@
 
     Por padrão as coordenadas das figuras são sempre para que seja possível
     a utilização da função polygon (menos figuras circulares), portanto até
-    mesmo retângulos precisam conter as coordenadas de todas as pontas.
+    mesmo retângulos precisam conter as coordenadas de todas os pontos.
 
 */
 #ifndef __FIGURA_H__
@@ -20,7 +20,7 @@
     1 = RETANGULO
     2 = CIRCULO
     3 = TRIANGULO
-    4 = ...
+    4 = HEXAGONO
 */
 
 class Figura{
@@ -38,9 +38,7 @@ class Figura{
 
     int qnt_coord_x;
     int qnt_coord_y;
-
     bool modo_fill;
-
     bool selected;
 
     void set_coordenadas(){
@@ -73,10 +71,43 @@ class Figura{
 
             raio = (int) coord[2];
         }
+        if(tipo == 3){
+            Xs = (float*)malloc(3*sizeof(float));
+            Ys = (float*)malloc(3*sizeof(float));
+
+            Xs[0] = coord[0];
+            Xs[1] = coord[2];
+            Xs[2] = coord[4];
+            qnt_coord_x = 3;
+
+            Ys[0] = coord[1];
+            Ys[1] = coord[3];
+            Ys[2] = coord[5];
+            qnt_coord_y = 3;
+
+        }
+        if(tipo == 4){
+            Xs = (float*)malloc(6*sizeof(float));
+            Ys = (float*)malloc(6*sizeof(float));
+
+            raio = coord[2];
+            float xc, yc;
+            for(int i=0; i<6; i++){
+                xc = coord[0] + sin(i*PI/3)*raio;
+                yc = coord[1] + cos(i*PI/3)*raio;
+                Xs[i] = xc;
+                Ys[i] = yc;
+
+            }
+
+            qnt_coord_x = 6;
+            qnt_coord_y = 6;
+        }
+
     }
 
 public:
-    Figura(int t, float c[], int e, Cor *corSelect, bool l){
+    Figura(int t, float c[], int e, Cor *corSelect, bool l, int rot){
 
         tipo = t;
 
@@ -89,7 +120,7 @@ public:
         modo_fill = l;
         raio = -1;
         set_coordenadas();
-        rotacao = 0;
+        rotacao = rot;
         selected = false;
     }
 
@@ -104,14 +135,32 @@ public:
             if(modo_fill) circleFill(x, y, raio, DIV_DEFAULT);
             else circle(x, y, raio, DIV_DEFAULT);
 
-        }else if(tipo == 1){
-
-            float *xs = getXsRot();
-            float *ys = getYsRot();
-
-            if(modo_fill) polygonFill(xs, ys, 4);
-            else polygon(xs, ys, 4);
+            return;
         }
+
+        float *xs = getXsRot();
+        float *ys = getYsRot();
+        int vertices = 0;
+
+        if(tipo == 1) vertices = 4;  // RETANGULO
+        if(tipo == 3) vertices = 3;  // TRIANGULO
+        if(tipo == 4) vertices = 6; // HEXAGONO
+
+        if(modo_fill) polygonFill(xs, ys, vertices);
+        else polygon(xs, ys, vertices);
+
+    }
+
+    bool pointInPoly(int qtdVert, float *xs, float *ys, float x, float y){
+        int i, j;
+        bool colisao = false;
+
+        for (i = 0, j = qtdVert-1; i < qtdVert; j = i++) {
+            if (((ys[i]>y) != (ys[j]>y)) && (x < (xs[j]-xs[i]) * (y-ys[i]) / (ys[j]-ys[i]) + xs[i])){
+                colisao = !colisao;
+            }
+        }
+        return colisao;
     }
 
     bool Colidiu(int x, int y){
@@ -119,32 +168,19 @@ public:
         float *xs = getXsRot();
         float *ys = getYsRot();
 
-        if(tipo == 1){
-            // COLIDIU FIGURA
-            float x_maior, x_menor, y_maior, y_menor;
-            x_maior = xs[0];
-            x_menor = xs[0];
-            y_maior = ys[0];
-            y_menor = ys[0];
-
-            for(int i=0; i<qnt_coord_x; i++){
-                if(x_maior < xs[i]) x_maior = xs[i];
-                if(x_menor > xs[i]) x_menor = xs[i];
-                if(y_maior < ys[i]) y_maior = ys[i];
-                if(y_menor > ys[i]) y_menor = ys[i];
-            }
-
-            if( (x >= x_menor) && (x <= x_maior) && (y >= y_menor) && (y <= y_maior) ){
-                return true;
-            }
-        }
-
         if(tipo == 2){
             int _x = xs[0], _y = ys[0];
             // (xA – a)^2 + (yA – b)^2 < r^2
             if( (pow((x - _x), 2) + pow((y - _y), 2)) < pow(raio, 2) ){
                 return true;
             }
+        }else{
+            int vertices = 0;
+            if(tipo == 1) vertices = 4;
+            if(tipo == 3) vertices = 3;
+            if(tipo == 4) vertices = 6;
+
+            return pointInPoly(vertices, xs, ys, x, y);
         }
 
         return false;
@@ -155,22 +191,39 @@ public:
         float *xs = getXsRot();
         float *ys = getYsRot();
         float x_medio, y_medio;
-        int tam = 4;
+        float tam = 4;
 
         // COLIDIU HOLD
-        for(int i=0; i<qnt_coord_x; i++){
-            if(tipo == 1){
-                x_medio = (xs[i%4] + xs[(i+1)%4]) / 2;
-                y_medio = (ys[i%4] + ys[(i+1)%4]) / 2;
-            }
+        if(tipo == 4){
+            for(int i=0; i<6; i++){
 
-            if(tipo == 2){
-                x_medio = xs[0] + sin(i*PI/2)*raio;
-                y_medio = ys[0] + cos(i*PI/2)*raio;
-            }
+                x_medio = xs[i];
+                y_medio = ys[i];
 
-            if(abs(x_medio - x) < tam && abs(y_medio - y) < tam){
-                return i + 1;
+                if((abs(x_medio - x) < tam) && (abs(y_medio - y) < tam)){
+                    return i + 1;
+                }
+            }
+        }else{
+            for(int i=0; i<4; i++){
+                if(tipo == 1){
+                    x_medio = (xs[i%4] + xs[(i+1)%4]) / 2;
+                    y_medio = (ys[i%4] + ys[(i+1)%4]) / 2;
+                }
+
+                if(tipo == 2){
+                    x_medio = xs[0] + cos(i*PI/2)*raio;
+                    y_medio = ys[0] + sin(i*PI/2)*raio;
+                }
+
+                if(tipo == 3){
+                    x_medio = xs[i%3];
+                    y_medio = ys[i%3];
+                }
+
+                if((abs(x_medio - x) < tam) && (abs(y_medio - y) < tam)){
+                    return i + 1;
+                }
             }
         }
 
@@ -178,28 +231,56 @@ public:
 
     }
 
-    void addXResize(int qtd, int lado){
-        //printf("\nLado %i: %i", lado, qtd);
-        if(tipo == 1){
-            for(int i = 0; i < 2; i++){
-                if(lado == 1 || lado == 3){
-                    Xs[(i + lado - 1)%4] += qtd;
-                    //Xs[(i + lado - 1)%4] += qtd;
-                }
-            }
-        }
-        if(tipo == 2){
-            raio += qtd;
-        }
-    }
+    void addResize(int qtdX, int qtdY, int lado){
 
-    void addYResize(int qtd, int lado){
+        int dist_x = qtdX;
+        int dist_y = qtdY;
+
         if(tipo == 1){
-            for(int i = 0; i < 2; i++){
+            for(int i=0; i<2; i++){
+
+                if(abs(rotacao) == 2){
+                    dist_x = qtdY;
+                    dist_y = -qtdX;
+                }
+
+                if(lado == 1 || lado == 3){
+                    Xs[(i + lado - 1)%4] += dist_x;
+                }
+
                 if(lado == 2 || lado == 4){
-                    Ys[(i + lado - 1)%4] += qtd;
+                    Ys[(i + lado - 1)%4] += dist_y;
                 }
             }
+        }
+
+        if(tipo == 2){
+            if(lado == 1) raio += dist_x;
+            if(lado == 3) raio -= dist_x;
+
+            if(lado == 2) raio += dist_y;
+            if(lado == 4) raio -= dist_y;
+
+        }
+
+        if(tipo == 3){
+            if(lado == 1 || lado == 3){
+                Xs[(lado - 1)%3] += dist_x;
+            }
+            if(lado == 2){
+                Ys[(lado - 1)%3] += dist_y;
+            }
+
+        }
+        if(tipo == 4){
+            if(lado == 1) raio += dist_y;
+            if(lado == 2) raio += dist_x;
+            if(lado == 3) raio += dist_x;
+            if(lado == 4) raio -= dist_y;
+            if(lado == 5) raio -= dist_x;
+            if(lado == 6) raio -= dist_x;
+
+            atualizaCoords();
         }
     }
 
@@ -254,8 +335,11 @@ public:
         float *xs = (float*)malloc(qnt_coord_x * sizeof(float));
         float x_medio = getXMedio();
         float y_medio = getYMedio();
+
+        float rot = rotacao%4;
+
         for(int i=0; i < qnt_coord_x; i++){
-            xs[i] = (Xs[i]-x_medio) * cos(rotacao*PI/4) - (Ys[i]-y_medio) * sin(rotacao*PI/4) + x_medio;
+            xs[i] = (Xs[i]-x_medio) * cos(rot*PI/4) - (Ys[i]-y_medio) * sin(rot*PI/4) + x_medio;
         }
         return xs;
     }
@@ -263,19 +347,34 @@ public:
         float *ys = (float*)malloc(qnt_coord_y * sizeof(float));
         float x_medio = getXMedio();
         float y_medio = getYMedio();
+
+        float rot = rotacao%4;
+
         for(int i=0; i < qnt_coord_y; i++){
-            ys[i] = (Xs[i]-x_medio) * sin(rotacao*PI/4) + (Ys[i]-y_medio) * cos(rotacao*PI/4) + y_medio;
+            ys[i] = (Xs[i]-x_medio) * sin(rot*PI/4) + (Ys[i]-y_medio) * cos(rot*PI/4) + y_medio;
         }
         return ys;
     }
 
     void addX(int qtd_x){
+        if(tipo == 4){
+            coord[0] += qtd_x;
+            atualizaCoords();
+            return;
+        }
+
         for(int i=0; i<qnt_coord_x; i++){
             Xs[i] += qtd_x;
         }
     }
 
     void addY(int qtd_y){
+        if(tipo == 4){
+            coord[1] += qtd_y;
+            atualizaCoords();
+            return;
+        }
+
         for(int i=0; i<qnt_coord_y; i++){
             Ys[i] += qtd_y;
         }
@@ -283,13 +382,16 @@ public:
 
     void addRotacao(int i){
         rotacao += i;
-        printf("\nRotacao: %i", rotacao);
-        //atualizaCoords();
+    }
+
+    int getRotacao(){
+        return rotacao;
     }
 
     float * getCoord(){
         return coord;
     }
+
 
     int getQntCoords(){
         return qtd_coords;
@@ -303,6 +405,26 @@ public:
         return cor;
     }
 
+    void atualizaCoords(){
+        float xc, yc;
+        float x_medio = coord[0];
+        float y_medio = coord[1];
+        for(int i=0; i<6; i++){
+            xc = x_medio + sin(i*PI/3)*raio;
+            yc = y_medio + cos(i*PI/3)*raio;
+            Xs[i] = xc;
+            Ys[i] = yc;
+        }
+    }
+
 };
+
+/* Variaveis de gerenciamento das figuras*/
+int figura_selecionada = -1;
+int redimensionar = -1;
+bool fillSelect = false;
+bool modoHold = false;
+int inicioHoldX = -1;
+int inicioHoldY = -1;
 
 #endif

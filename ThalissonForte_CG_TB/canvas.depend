@@ -67,11 +67,11 @@
 	"gl_canvas2d.h"
 	"math.h"
 
-1585809958 source:d:\documentos\github\cg\thalissonforte_cg_tb\src\bmp.cpp
+1587413931 source:d:\documentos\github\cg\thalissonforte_cg_tb\src\bmp.cpp
 	"Bmp.h"
 	<string.h>
 
-1585809366 d:\documentos\github\cg\thalissonforte_cg_tb\src\bmp.h
+1587413717 d:\documentos\github\cg\thalissonforte_cg_tb\src\bmp.h
 	<stdio.h>
 	<stdlib.h>
 	"Pixel.h"
@@ -108,7 +108,7 @@
 	"gl_canvas2d.h"
 	<GL/glut.h>
 
-1587204029 source:d:\documentos\github\cg\thalissonforte_cg_tb\src\main.cpp
+1587417976 source:d:\documentos\github\cg\thalissonforte_cg_tb\src\main.cpp
 	<GL/glut.h>
 	<GL/freeglut_ext.h>
 	<math.h>
@@ -122,16 +122,16 @@
 	"Bmp.h"
 	"Pixel.h"
 
-1586637541 d:\documentos\github\cg\thalissonforte_cg_tb\src\cor.h
+1587376727 d:\documentos\github\cg\thalissonforte_cg_tb\src\cor.h
 	"gl_canvas2d.h"
 
-1585890793 d:\documentos\github\cg\thalissonforte_cg_tb\src\botao.h
+1587417650 d:\documentos\github\cg\thalissonforte_cg_tb\src\botao.h
 	"gl_canvas2d.h"
 
 1586930959 d:\documentos\github\cg\thalissonforte_cg_tb\src\manager.h
 	"gl_canvas2d.h"
 
-1587203888 d:\documentos\github\cg\thalissonforte_cg_tb\src\figura.h
+1587414374 d:\documentos\github\cg\thalissonforte_cg_tb\src\figura.h
 	"gl_canvas2d.h"
 	"math.h"
 
