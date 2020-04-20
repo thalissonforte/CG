@@ -28,6 +28,8 @@
 //
 //
 //    Atalhos importantes:
+//          SETAS  - Movimenta a figura selecionada
+//                (a figura também pode ser movida clicando e arrastando o mouse)
 //          DELETE - Exclui a figura selecionada
 //          ENTER  - Desseleciona a figura
 //          ESC    - Salva a configuração atual e fecha o programa
@@ -291,6 +293,30 @@ void keyboard(int key){
 
       case 102: // LETRA F
          fillSelect = !fillSelect;
+      break;
+
+      case 200: // ESQUERDA
+         if(figura_selecionada != -1){
+            figura[figura_selecionada]->addX(-1);
+         }
+      break;
+
+      case 201: // CIMA
+         if(figura_selecionada != -1){
+            figura[figura_selecionada]->addY(1);
+         }
+      break;
+
+      case 202:  // DIREITA
+         if(figura_selecionada != -1){
+            figura[figura_selecionada]->addX(1);
+         }
+      break;
+
+      case 203:  // BAIXO
+         if(figura_selecionada != -1){
+            figura[figura_selecionada]->addY(-1);
+         }
       break;
    }
 }
@@ -679,6 +705,7 @@ void modo_uso(){
 
 
    printf("\nAtalhos importantes: \n");
+   printf("\nSETAS  - Movimenta a figura selecionada");
    printf("\nDELETE - Exclui a figura selecionada");
    printf("\nENTER  - Desseleciona a figura");
    printf("\nESC    - Salva a configuracaoo atual e fecha o programa");
