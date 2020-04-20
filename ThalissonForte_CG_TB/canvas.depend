@@ -108,7 +108,7 @@
 	"gl_canvas2d.h"
 	<GL/glut.h>
 
-1587419313 source:d:\documentos\github\cg\thalissonforte_cg_tb\src\main.cpp
+1587421113 source:d:\documentos\github\cg\thalissonforte_cg_tb\src\main.cpp
 	<GL/glut.h>
 	<GL/freeglut_ext.h>
 	<math.h>

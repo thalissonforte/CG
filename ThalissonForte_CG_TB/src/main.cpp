@@ -297,25 +297,25 @@ void keyboard(int key){
 
       case 200: // ESQUERDA
          if(figura_selecionada != -1){
-            figura[figura_selecionada]->addX(-1);
+            figura[figura_selecionada]->addX(-10);
          }
       break;
 
       case 201: // CIMA
          if(figura_selecionada != -1){
-            figura[figura_selecionada]->addY(1);
+            figura[figura_selecionada]->addY(10);
          }
       break;
 
       case 202:  // DIREITA
          if(figura_selecionada != -1){
-            figura[figura_selecionada]->addX(1);
+            figura[figura_selecionada]->addX(10);
          }
       break;
 
       case 203:  // BAIXO
          if(figura_selecionada != -1){
-            figura[figura_selecionada]->addY(-1);
+            figura[figura_selecionada]->addY(-10);
          }
       break;
    }
