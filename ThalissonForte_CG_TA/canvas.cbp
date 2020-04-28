@@ -2,26 +2,32 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="CG_TA_ThalissonForte" />
+		<Option title="Canvas C++" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/CG_TA_ThalissonForte" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="../__bin/Debug/canvas" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../" />
+				<Option object_output="../__obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=c++11" />
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/CG_TA_ThalissonForte" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option output="../__bin/Release/canvas" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../" />
+				<Option object_output="../__obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add option="-O2 -Wall" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -30,22 +36,25 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="GL/glut.h" />
-		<Unit filename="include/GL/freeglut_ext.h" />
+		<Linker>
+			<Add library="..\lib\libglu32.a" />
+			<Add library="..\lib\freeglut.lib" />
+			<Add library="..\lib\libopengl32.a" />
+		</Linker>
+		<Unit filename="include/GL/glut.h" />
 		<Unit filename="src/Bmp.h" />
 		<Unit filename="src/Botao.h" />
 		<Unit filename="src/Cor.h" />
-		<Unit filename="src/Manager.h" />
-		<Unit filename="src/Pixel.h" />
 		<Unit filename="src/bmp.cpp" />
 		<Unit filename="src/gl_canvas2d.cpp" />
 		<Unit filename="src/gl_canvas2d.h" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />
-			<envvars />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

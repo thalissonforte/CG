@@ -192,7 +192,7 @@ void color_Transform(int i, int j, int zoom){
    color(_r, _g, _b);
 }
 
-//funcao chamada toda vez que uma tecla for pressionada.
+//funcao chamada toda vez que uma tecla for pressionada
 void keyboard(int key){
    //printf("\nTecla: %d" , key);
    if( key < 200 ){
@@ -201,6 +201,8 @@ void keyboard(int key){
 
    switch(key){
       case 27: // ESC
+
+
          exit(0);
       break;
 
@@ -360,10 +362,10 @@ void modo_uso(){
 void carregamento_imagem(int opt){
    system("CLS");
    // CARREGAMENTO IMAGEM
-   if(opt == 1) img1 = new Bmp(".\\trabalho1\\resources\\normal_1.bmp"); // 49
-   if(opt == 2) img1 = new Bmp(".\\trabalho1\\resources\\marbles.bmp"); // 50
-   if(opt == 3) img1 = new Bmp(".\\trabalho1\\resources\\ray_res.bmp"); // 51
-   if(opt == 4) img1 = new Bmp(".\\trabalho1\\resources\\aviao.bmp"); // 52
+   if(opt == 1) img1 = new Bmp(".\\ThalissonForte_CG_TA\\resources\\normal_1.bmp"); // 49
+   if(opt == 2) img1 = new Bmp(".\\ThalissonForte_CG_TA\\resources\\marbles.bmp"); // 50
+   if(opt == 3) img1 = new Bmp(".\\ThalissonForte_CG_TA\\resources\\ray_res.bmp"); // 51
+   if(opt == 4) img1 = new Bmp(".\\ThalissonForte_CG_TA\\resources\\aviao.bmp"); // 52
 
    printf("\n\nImagem %i carregada.", opt);
 

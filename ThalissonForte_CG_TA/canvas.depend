@@ -1,0 +1,63 @@
+# depslib dependency file v1.0
+1585809958 source:d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\bmp.cpp
+	"Bmp.h"
+	<string.h>
+
+1585809366 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\bmp.h
+	<stdio.h>
+	<stdlib.h>
+	"Pixel.h"
+
+1585890766 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\pixel.h
+	"gl_canvas2d.h"
+
+1584042973 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\gl_canvas2d.h
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<string.h>
+	<GL/glut.h>
+	<GL/freeglut_ext.h>
+
+1426372440 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\include\gl\glut.h
+	"freeglut_std.h"
+
+1437579942 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\include\gl\freeglut_std.h
+	<windows.h>
+	<EGL/egl.h>
+	<GLES/gl.h>
+	<GLES2/gl2.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+
+1426372440 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\include\gl\freeglut_ext.h
+	<stdarg.h>
+
+1585891989 source:d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\gl_canvas2d.cpp
+	"gl_canvas2d.h"
+	<GL/glut.h>
+
+1585957191 source:d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\main.cpp
+	<GL/glut.h>
+	<GL/freeglut_ext.h>
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	"gl_canvas2d.h"
+	"Cor.h"
+	"Botao.h"
+	"Bmp.h"
+	"Manager.h"
+
+1585890709 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\cor.h
+	"gl_canvas2d.h"
+
+1585890793 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\botao.h
+	"gl_canvas2d.h"
+
+1585890669 d:\2020_1\computacao grafica\new trab1\thalissonforte_cg_ta\src\manager.h
+	"gl_canvas2d.h"
+
