@@ -16,7 +16,7 @@ Manipulação de Figuras - <a href="ThalissonForte_CG_TB">Trabalho B</a>
 -----------------------------
 #### Preview:
 <div aling="center">
-    <img src="https://raw.githubusercontent.com/thalissonforte/CG/ThalissonForte_CG_TB/preview.png">
+    <img src="https://github.com/thalissonforte/CG/blob/master/ThalissonForte_CG_TB/preview.png">
 </div>
 
 
