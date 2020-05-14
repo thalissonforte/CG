@@ -51,8 +51,25 @@
 #include "Bmp.h"
 #include "Pixel.h"
 
+float tempo = 0;
+float inc_tempo = 0.00025;
+bool modo_animacao = false;
+Cor **cores = NULL;
+
+// variavel global para selecao do que sera exibido na canvas
+int opcao  = 50;
+int screenWidth = 780, screenHeight = 530; //largura e altura inicial da tela . Alteram com o redimensionamento de tela.
+int mouseX, mouseY; //variaveis globais do mouse para poder exibir dentro da render().
+
+#include "Ponto.h"
+#include "ManagerPontos.h"
+
 /* Manager */
 Manager *manager_btn = NULL;
+ManagerPontos *manager_pontos = NULL;
+int ponto_selecionado;
+/**/
+
 
 /* Figuras e cores*/
 int QTD_FIGURAS = 0;
@@ -60,10 +77,7 @@ Figura **figura = NULL;
 Cor *corSelecionada = preto;
 FILE *arquivo;
 
-// variavel global para selecao do que sera exibido na canvas
-int opcao  = 50;
-int screenWidth = 780, screenHeight = 530; //largura e altura inicial da tela . Alteram com o redimensionamento de tela.
-int mouseX, mouseY; //variaveis globais do mouse para poder exibir dentro da render().
+
 
 /* Imagens Utilizadas */
 Bmp *fillImg = NULL;
@@ -87,12 +101,14 @@ void exibeImg(int offset_X, int offset_Y, Bmp *img);
 void salvarArquivo();
 
 // EXIBICAO DA COR SELECIONADA
+/*
 void exibeCorSelecionada(){
     char str[100];
     int offset_x_ = 400;
     sprintf(str, "Cor selecionada");
     text(screenWidth-offset_x_,45, str);
 }
+*/
 
 // DESENHO DA TELA
 void desenhaTela(){
@@ -103,17 +119,18 @@ void desenhaTela(){
    // PARTE PRINCIPAL (MEIO)
       // PARTE DESENHAVEL
    color(0.92, 0.92, 0.92);
-   rectFill(80,60, screenWidth-30, screenHeight-30);
+   rectFill(30,60, screenWidth-30, screenHeight-30);
 
-   color(0.54,0.54,0.54);
-   rect(80,60, screenWidth-30, screenHeight-30);
+   //color(0.54,0.54,0.54);
+   //rect(80,60, screenWidth-30, screenHeight-30);
 
    // COR SELECIONADA
-   corSelecionada->Aplica();
-   rectFill(screenWidth-380, 5, screenWidth-270, 35);
+   //corSelecionada->Aplica();
+   //rectFill(screenWidth-380, 5, screenWidth-270, 35);
 }
 
 // DESENHO DOS BOTOES DE CRIACAO
+/*
 void desenhaBotoes(){
     int dist_y = 34;
    // BOTAO RETANGULO
@@ -134,8 +151,10 @@ void desenhaBotoes(){
    polygon(cordX2, cordY2, 6);
 
 }
+*/
 
 // FUNCAO QUE DESENHA SOBRE O OBJETO SELECIONADO
+/*
 void desenhaSelecao(){
    if(figura_selecionada == -1) return;
    Figura *fig = figura[figura_selecionada];
@@ -175,8 +194,10 @@ void desenhaSelecao(){
    }
 
 }
+*/
 
 // FUNCAO QUE PRINTA A IMAGEM
+/*
 void exibeImg(int offset_X, int offset_Y, Bmp *img){
 
    int alt, lar, inc;
@@ -192,8 +213,10 @@ void exibeImg(int offset_X, int offset_Y, Bmp *img){
       }
    }
 }
+*/
 
 // FUNCAO DE CONTROLE DE EXIBICAO DE IMAGENS
+/*
 void exibirImagens(){
    exibeImg(inicio_botoes_cor_x+18, inicio_botoes_cor_y + 67, fillImg);
    exibeImg(inicio_botoes_cor_x + 6*30 + 7, inicio_botoes_cor_y + 7, rotDirImg);
@@ -201,8 +224,10 @@ void exibirImagens(){
    exibeImg(inicio_botoes_cor_x + 9*30 + 7, inicio_botoes_cor_y + 7, trazerFrente);
    exibeImg(inicio_botoes_cor_x + 10*30 + 17, inicio_botoes_cor_y + 7, levarTras);
 }
+*/
 
 // FUNCAO QUE REMOVE A FIGURA
+/*
 void removeFigura(int id){
    Figura *fAux;
    figura_selecionada = -1;
@@ -218,8 +243,10 @@ void removeFigura(int id){
    QTD_FIGURAS--;
    //printf("\nFigura %i removida", id);
 }
+*/
 
 // FUNCAO QUE MODIFICA A FIGURA (POSICAO E TAMANHO)
+/*
 void movimentacaoHold(){
    if(modoHold && figura_selecionada != -1){
       if(redimensionar != -1){
@@ -233,6 +260,7 @@ void movimentacaoHold(){
       inicioHoldY = mouseY;
    }
 }
+*/
 
 //funcao chamada continuamente. Deve-se controlar o que desenhar por meio de variaveis globais
 //Todos os comandos para desenho na canvas devem ser chamados dentro da render().
@@ -241,32 +269,47 @@ void render(){
    // DESENHO DA TELA
    desenhaTela();
 
-   // COR SELECIONADA
-   preto->Aplica();
-   exibeCorSelecionada();
+   // DESENHO DOS PONTOS
+   manager_pontos->Render();
+
+   // TEMPO
+   if(modo_animacao){
+      tempo += inc_tempo;
+      if(tempo > 1) tempo = 0;
+   }else{
+      tempo = 1;
+   }
+
+   if(modoHold && ponto_selecionado != -1){
+      //printf("Mover %i em x: %i\t em y: %i", ponto_selecionado, mouseX - inicioHoldX, mouseY - inicioHoldY);
+      manager_pontos->moverPonto(ponto_selecionado, mouseX - inicioHoldX, mouseY - inicioHoldY);
+
+      inicioHoldX = mouseX;
+      inicioHoldY = mouseY;
+   }
 
    // RENDER DOS BOTOES
    manager_btn->renderBtns();
 
    // BOTÕES
-   desenhaBotoes();
+   //desenhaBotoes();
 
    // IMAGENS
-   exibirImagens();
+   //exibirImagens();
 
    // FIGURAS
-   for(int i=0; i<QTD_FIGURAS; i++){
+   /*for(int i=0; i<QTD_FIGURAS; i++){
       figura[i]->desenhaFigura();
-   }
+   }*/
 
    // MODO FILL
-   if(fillSelect) exibeImg(mouseX-8, mouseY-5, fillImg);
+   //if(fillSelect) exibeImg(mouseX-8, mouseY-5, fillImg);
 
    // DESENHO SELECAO
-   desenhaSelecao();
+   //desenhaSelecao();
 
    // ALTERACAO NA FIGURA
-   movimentacaoHold();
+   //movimentacaoHold();
 
 }
 
@@ -279,44 +322,45 @@ void keyboard(int key){
 
    switch(key){
       case 27: // ESC
-         salvarArquivo();
+         //salvarArquivo();
          exit(0);
       break;
 
       case 13: // ENTER
-         figura_selecionada = -1;
+         //manager_pontos->iniciaPontosAnimados();
+         modo_animacao = !modo_animacao;
       break;
 
       case 127: // DELETE
-         if(figura_selecionada != -1) removeFigura(figura_selecionada);
+         //if(figura_selecionada != -1) removeFigura(figura_selecionada);
       break;
 
       case 102: // LETRA F
-         fillSelect = !fillSelect;
+         //fillSelect = !fillSelect;
       break;
 
       case 200: // ESQUERDA
-         if(figura_selecionada != -1){
+         /*if(figura_selecionada != -1){
             figura[figura_selecionada]->addX(-10);
-         }
+         }*/
       break;
 
       case 201: // CIMA
-         if(figura_selecionada != -1){
+         /*if(figura_selecionada != -1){
             figura[figura_selecionada]->addY(10);
-         }
+         }*/
       break;
 
       case 202:  // DIREITA
-         if(figura_selecionada != -1){
+         /*if(figura_selecionada != -1){
             figura[figura_selecionada]->addX(10);
-         }
+         }*/
       break;
 
       case 203:  // BAIXO
-         if(figura_selecionada != -1){
+         /*if(figura_selecionada != -1){
             figura[figura_selecionada]->addY(-10);
-         }
+         }*/
       break;
    }
 }
@@ -326,6 +370,7 @@ void keyboardUp(int key){
    //printf("\nLiberou: %d" , key);
 }
 
+/*
 bool colidiuFiguras(int x, int y){
 
    if(figura_selecionada != -1){
@@ -352,348 +397,72 @@ bool colidiuFiguras(int x, int y){
    return false;
 
 }
+*/
 
 // FUNCAO LIMPAR
+/*
 void limparFiguras(){
     int quantia = QTD_FIGURAS;
     for(int i=0; i<quantia; i++){
         removeFigura(0);
     }
 }
+*/
 
 // FUNCAO RESPONSAVEL POR TRATAR A UTILIZACAO DO MOUSE
 void mouse(int button, int state, int wheel, int direction, int x, int y){
    mouseX = x;
    mouseY = y;
+   printf("\nMouse: \tX = %i\tY = %i", mouseX, mouseY);
+
 
    if (state == 0){ //clicou
+
+
+      if(manager_pontos->Colidiu(x, y) != -1){
+         ponto_selecionado = manager_pontos->Colidiu(x, y);
+         printf("\nID: %i", ponto_selecionado);
+      }
 
       modoHold = true;
       inicioHoldX = mouseX;
       inicioHoldY = mouseY;
 
-      if(btAddRetangulo->Colidiu(x, y)){
-         //printf("\nCriando Retangulo\n");
-         criaRetangulo(200, 300, 400, 400, corSelecionada, false, 0);
+      if(btAddPonto->Colidiu(x, y)){
+         printf("\nCriando Ponto\n");
+         manager_pontos->addNovoPonto();
+         //criaRetangulo(200, 300, 400, 400, corSelecionada, false, 0);
       }
 
-      if(btAddCirculo->Colidiu(x, y)){
-         //printf("\nCriando Circulo\n");
-         criaCirculo(200, 200, 50, corSelecionada, false, 0);
+      if(btRemovePonto->Colidiu(x, y)){
+         printf("\tRemovendo Ponto\n");
+         manager_pontos->removePonto();
+         //criaCirculo(200, 200, 50, corSelecionada, false, 0);
       }
-
-      if(btAddTriangulo->Colidiu(x, y)){
-         //printf("\nCriando Triangulo\n");
-         criaTriangulo(550, 300, 600, 400, 650, 300, corSelecionada, false, 0);
-      }
-
-      if(btAddHexagono->Colidiu(x, y)){
-         //printf("\nCriando Hexagono\n");
-         criaHexagono(500, 200, 50, corSelecionada, false, 0);
-      }
-
-      if(btRotEsquerda->Colidiu(x, y)){
-         if(figura_selecionada != -1){
-            figura[figura_selecionada]->addRotacao(-1);
-         }
-      }
-
-      if(btRotDireita->Colidiu(x, y)){
-         if(figura_selecionada != -1){
-            figura[figura_selecionada]->addRotacao(1);
-         }
-      }
-
-      if(btFrente->Colidiu(x, y)){
-         if(figura_selecionada != -1){
-            Figura *aux = figura[figura_selecionada]; // ULTIMA FIGURA
-            for(int i=figura_selecionada; i<QTD_FIGURAS-1; i++){
-               figura[i] = figura[i+1];
-            }
-            figura[QTD_FIGURAS-1] = aux;
-            figura_selecionada = QTD_FIGURAS-1;
-         }
-      }
-
-      if(btTras->Colidiu(x, y)){
-         if(figura_selecionada != -1){
-            Figura *aux = figura[figura_selecionada]; // PRIMEIRA FIGURA
-            for(int i=figura_selecionada; i>0; i--){
-               figura[i] = figura[i-1];
-            }
-            figura[0] = aux;
-            figura_selecionada = 0;
-         }
-      }
-
-      if(btSalvar->Colidiu(x, y)){
-         salvarArquivo();
-         printf("\nFiguras salvas.");
-      }
-
-      if(btSair->Colidiu(x, y)){
-         exit(0);
-      }
-
-      if(btLimpar->Colidiu(x, y)){
-         limparFiguras();
-      }
-
-       if(colidiuFiguras(x, y)){
-
-
-       }else if( btPreto->Colidiu(x, y)){
-         corSelecionada = preto;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(preto);
-       }else if( btBranco->Colidiu(x, y)){
-          corSelecionada = branco;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(branco);
-       }else if( btCinza->Colidiu(x, y)){
-         corSelecionada = cinza;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(cinza);
-       }else if( btCinzaForte->Colidiu(x, y)){
-         corSelecionada = cinzaForte;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(cinzaForte);
-       }else if( btVermelho->Colidiu(x, y)){
-         corSelecionada = vermelho;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(vermelho);
-       }else if( btAmarelo->Colidiu(x, y)){
-         corSelecionada = amarelo;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(amarelo);
-       }else if( btVerde->Colidiu(x, y)){
-         corSelecionada = verde;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(verde);
-       }else if( btAzul->Colidiu(x, y)){
-         corSelecionada = azul;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(azul);
-       }else if( btRosa->Colidiu(x, y)){
-         corSelecionada = rosa;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(rosa);
-       }else if( btRoxo->Colidiu(x, y)){
-         corSelecionada = roxo;
-         if(figura_selecionada != -1) figura[figura_selecionada]->setCor(roxo);
-       }else{
-          if(fillSelect) fillSelect = false;
-       }
-
-      if(btFill->Colidiu(x, y)){
-         fillSelect = !fillSelect;
-       }
 
    }
    if(state == 1){
       // SOLTOU
       modoHold = false;
-      redimensionar = -1;
+      ponto_selecionado = -1;
+      //redimensionar = -1;
    }
 }
 
 // FUNCAO QUE INICIALIZA OS BOTOES UTILIZADOS
 void inicializaBotoes(){
-   int espaco_entre = 10, larg_btn = 30, larg_btn_cor = 20;
-   int offset_cor = larg_btn_cor + espaco_entre;
+   int alt_btn = 30, larg_btn = 100;
 
    // MANAGER
    manager_btn = new Manager();
 
    // BOTOES CRIACAO
-   btAddRetangulo = new Botao(inicio_botoes_x, inicio_botoes_y, larg_btn, larg_btn, "", cor_zooms);
-   btAddCirculo = new Botao(inicio_botoes_x+larg_btn+espaco_entre, inicio_botoes_y, larg_btn, larg_btn, "", cor_zooms);
-   btAddTriangulo = new Botao(inicio_botoes_x, inicio_botoes_y-larg_btn-espaco_entre, larg_btn, larg_btn, "", cor_zooms);
-   btAddHexagono = new Botao(inicio_botoes_x+larg_btn+espaco_entre, inicio_botoes_y-larg_btn-espaco_entre, larg_btn, larg_btn, "", cor_zooms);
+   btAddPonto = new Botao(30, 10, larg_btn, alt_btn, "Adicionar", cinzaForte);
+   btRemovePonto = new Botao(150, 10, larg_btn, alt_btn, "Remover", cinzaForte);
 
-   // BOTOES FERRAMENTAS
-   btFill = new Botao(inicio_botoes_x+0.7*larg_btn, inicio_botoes_cor_y + 2*larg_btn, larg_btn, larg_btn, "", cor_zooms);
-   btRotDireita = new Botao(inicio_botoes_cor_x + 7*offset_cor + espaco_entre, inicio_botoes_cor_y, larg_btn, larg_btn, "", cor_zooms);
-   btRotEsquerda = new Botao(inicio_botoes_cor_x + 6*offset_cor, inicio_botoes_cor_y, larg_btn, larg_btn, "", cor_zooms);
-   btFrente = new Botao(inicio_botoes_cor_x + 9*offset_cor, inicio_botoes_cor_y, larg_btn, larg_btn, "", cor_zooms);
-   btTras = new Botao(inicio_botoes_cor_x + 10*offset_cor + espaco_entre, inicio_botoes_cor_y, larg_btn, larg_btn, "", cor_zooms);
-   btLimpar = new Botao(550, inicio_botoes_cor_y - 2, larg_btn + 40, larg_btn - 5, "Limpar", preto);
-
-   // BOTOES FINALIZACAO
-   btSalvar = new Botao(630, inicio_botoes_cor_y + offset_cor - 2, larg_btn + 40, larg_btn - 5, "Salvar", cinzaForte);
-   btSair = new Botao(630, inicio_botoes_cor_y - 2, larg_btn + 40, larg_btn - 5, "Sair", cinzaForte);
-
-
-   // BOTOES DE COR
-   btPreto = new Botao(inicio_botoes_cor_x, inicio_botoes_cor_y, larg_btn_cor, larg_btn_cor, "", preto);
-   btBranco = new Botao(inicio_botoes_cor_x, inicio_botoes_cor_y + offset_cor, larg_btn_cor, larg_btn_cor, "", branco);
-
-   btCinzaForte = new Botao(inicio_botoes_cor_x + offset_cor, inicio_botoes_cor_y, larg_btn_cor, larg_btn_cor, "", cinzaForte);
-   btCinza = new Botao(inicio_botoes_cor_x + offset_cor, inicio_botoes_cor_y + offset_cor, larg_btn_cor, larg_btn_cor, "", cinza);
-
-   btVermelho = new Botao(inicio_botoes_cor_x + 2*offset_cor, inicio_botoes_cor_y, larg_btn_cor, larg_btn_cor, "", vermelho);
-   btAmarelo = new Botao(inicio_botoes_cor_x+ 2*offset_cor, inicio_botoes_cor_y + offset_cor, larg_btn_cor, larg_btn_cor, "", amarelo);
-
-   btVerde = new Botao(inicio_botoes_cor_x + 3*offset_cor, inicio_botoes_cor_y, larg_btn_cor, larg_btn_cor, "", verde);
-   btAzul = new Botao(inicio_botoes_cor_x + 3*offset_cor, inicio_botoes_cor_y + offset_cor, larg_btn_cor, larg_btn_cor, "", azul);
-
-   btRosa = new Botao(inicio_botoes_cor_x + 4*offset_cor, inicio_botoes_cor_y, larg_btn_cor, larg_btn_cor, "", rosa);
-   btRoxo = new Botao(inicio_botoes_cor_x + 4*offset_cor, inicio_botoes_cor_y + offset_cor, larg_btn_cor, larg_btn_cor, "", roxo);
-
-   // MANAGER ADD BTNS
-   manager_btn->addBtn(btAddRetangulo);
-   manager_btn->addBtn(btAddCirculo);
-   manager_btn->addBtn(btAddTriangulo);
-   manager_btn->addBtn(btAddHexagono);
-
-   manager_btn->addBtn(btFill);
-   manager_btn->addBtn(btRotDireita);
-   manager_btn->addBtn(btRotEsquerda);
-   manager_btn->addBtn(btFrente);
-   manager_btn->addBtn(btTras);
-
-   manager_btn->addBtn(btSalvar);
-   manager_btn->addBtn(btSair);
-   manager_btn->addBtn(btLimpar);
-
-   manager_btn->addBtn(btPreto);
-   manager_btn->addBtn(btBranco);
-
-   manager_btn->addBtn(btCinzaForte);
-   manager_btn->addBtn(btCinza);
-
-   manager_btn->addBtn(btVermelho);
-   manager_btn->addBtn(btAmarelo);
-
-   manager_btn->addBtn(btVerde);
-   manager_btn->addBtn(btAzul);
-
-   manager_btn->addBtn(btRosa);
-   manager_btn->addBtn(btRoxo);
-}
-
-// FUNCOES DE CRIACAO DE FIGURAS
-void criaCirculo(float x, float y, float raio, Cor* corz, bool fill_, int rot){
-   float cord[] = {x, y, raio};
-   figura = (Figura**)realloc(figura, (QTD_FIGURAS+1)*sizeof(Figura*));
-   figura[QTD_FIGURAS] = new Figura(2, cord, 3, corz, fill_, rot);
-   QTD_FIGURAS++;
-}
-void criaRetangulo(float x1, float y1, float x2, float y2, Cor* corz, bool fill_, int rot){
-   float cord[] = {x1, y1, x1, y2, x2, y2, x2, y1};
-   figura = (Figura**)realloc(figura, (QTD_FIGURAS+1)*sizeof(Figura*));
-   figura[QTD_FIGURAS] = new Figura(1, cord, 8, corz, fill_, rot);
-   QTD_FIGURAS++;
-}
-void criaTriangulo(float x1, float y1, float x2, float y2, float x3, float y3, Cor* corz, bool fill_, int rot){
-   float cord[] = {x1, y1, x2, y2, x3, y3};
-   figura = (Figura**)realloc(figura, (QTD_FIGURAS+1)*sizeof(Figura*));
-   figura[QTD_FIGURAS] = new Figura(3, cord, 6, corz, fill_, rot);
-   QTD_FIGURAS++;
-}
-void criaHexagono(float x, float y, float raio, Cor* corz, bool fill_, int rot){
-   float cord[] = {x, y, raio};
-   figura = (Figura**)realloc(figura, (QTD_FIGURAS+1)*sizeof(Figura*));
-   figura[QTD_FIGURAS] = new Figura(4, cord, 3, corz, fill_, rot);
-   QTD_FIGURAS++;
-}
-///////////////////////////////////
-
-// FUNCAO QUE SALVA AS FIGURAS EM UM ARQUIVO
-void salvarArquivo(){
-   if(QTD_FIGURAS > 0){
-      if((arquivo = fopen("figuras.gr", "w")) == NULL){ /* Abre arquivo para escrita */
-         printf("Erro na abertura do arquivo");
-         exit(1);
-      }
-      fprintf(arquivo, "%i\n", QTD_FIGURAS);
-
-      for(int i = 0 ; i < QTD_FIGURAS; i++){
-         fprintf(arquivo, "%i ", figura[i]->getTipo());
-         fprintf(arquivo, "%i ", figura[i]->getQntCoords());
-
-         for(int j = 0; j<(figura[i]->getQntCoords())/2; j++){
-            if(figura[i]->getTipo() == 4){
-               fprintf(arquivo, "%f ", (figura[i]->getCoord())[0]);
-               fprintf(arquivo, "%f ", (figura[i]->getCoord())[1]);
-            }else{
-               fprintf(arquivo, "%f ", (figura[i]->getXs())[j]);
-               fprintf(arquivo, "%f ", (figura[i]->getYs())[j]);
-            }
-         }
-
-         if(figura[i]->getTipo() == 2 || figura[i]->getTipo() == 4){
-            fprintf(arquivo, "%i ", figura[i]->getRaio());
-         }
-
-         fprintf(arquivo, "%f ", figura[i]->getCor()->getR());
-         fprintf(arquivo, "%f ", figura[i]->getCor()->getG());
-         fprintf(arquivo, "%f ", figura[i]->getCor()->getB());
-
-         fprintf(arquivo, "%i ", figura[i]->getFill());
-         fprintf(arquivo, "%i\n", figura[i]->getRotacao());
-      }
-
-      fclose(arquivo);
-   }
-}
-
-// FUNCAO QUE INICIALIZA AS IMAGENS UTILIZADAS NO PROGRAMA
-void inicializaImagens(){
-   fillImg = new Bmp(".\\ThalissonForte_CG_TB\\resources\\fill.bmp");
-   fillImg->convertBGRtoRGB();
-
-   rotDirImg = new Bmp(".\\ThalissonForte_CG_TB\\resources\\rot_direita.bmp");
-   rotDirImg->convertBGRtoRGB();
-
-   rotEsqImg = new Bmp(".\\ThalissonForte_CG_TB\\resources\\rot_esquerda.bmp");
-   rotEsqImg->convertBGRtoRGB();
-
-   trazerFrente = new Bmp(".\\ThalissonForte_CG_TB\\resources\\trazer_frente.bmp");
-   trazerFrente->convertBGRtoRGB();
-
-   levarTras = new Bmp(".\\ThalissonForte_CG_TB\\resources\\levar_tras.bmp");
-   levarTras->convertBGRtoRGB();
-}
-
-void inicializaFiguras(){
-   figura = (Figura**)malloc(sizeof(Figura*)); //CRIANDO VETOR
-}
-
-// FUNCAO QUE REALIZA A LEITURA DO ARQUIVO
-void leituraArquivo(){
-   if((arquivo = fopen("figuras.gr", "r")) == NULL){ /* Abre arquivo binário para escrita */
-      printf("Erro na abertura ou arquivo inexistente");
-   }else{
-      int qtd_figuras_salvas = 0;
-      int tipo, qtd_coords, fillM, rot;
-      float coords[12], r, g, b;
-      bool fillB;
-      fscanf(arquivo, "%i", &qtd_figuras_salvas);
-      printf("Quantidade figuras carregadas: %i\n", qtd_figuras_salvas);
-
-      for(int i = 0 ; i < qtd_figuras_salvas; i++){
-         fscanf(arquivo, "%i", &tipo);
-         fscanf(arquivo, "%i", &qtd_coords);
-         for(int j=0; j<qtd_coords; j++){
-            fscanf(arquivo, "%f", &(coords[j]));
-         }
-         fscanf(arquivo, "%f", &r);
-         fscanf(arquivo, "%f", &g);
-         fscanf(arquivo, "%f", &b);
-         fscanf(arquivo, "%i", &fillM);
-         fscanf(arquivo, "%i", &rot);
-
-         if(fillM == 1) fillB = true;
-         else fillB = false;
-
-         if(tipo == 1){
-            criaRetangulo(coords[0], coords[1], coords[4], coords[5], new Cor(r, g, b), fillB, rot);
-         }
-         if(tipo == 2){
-            criaCirculo(coords[0], coords[1], coords[2], new Cor(r, g, b), fillB, rot);
-         }
-         if(tipo == 3){
-            criaTriangulo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], new Cor(r, g, b), fillB, rot);
-         }
-         if(tipo == 4){
-            criaHexagono(coords[0], coords[1], coords[2], new Cor(r, g, b), fillB, rot);
-         }
-
-      }
-      fclose(arquivo);
-   }
+   // ADICIONANDO NO MANAGER
+   manager_btn->addBtn(btAddPonto);
+   manager_btn->addBtn(btRemovePonto);
 }
 
 // MODO DE USO
@@ -713,25 +482,39 @@ void modo_uso(){
    //printf("\n2 - Utilize os numeros para alterar a imagem.");
 }
 
+void inicializaPontos(){
+   manager_pontos = new ManagerPontos();
+   ponto_selecionado = -1;
+}
+
 int main(void){
 
    // INICIALIZANDO BOTOES E MANAGER
    inicializaBotoes();
 
-   // INICIALIZANDO VETOR DE FIGURAS
-   inicializaFiguras();
-
-   // LEITURA ARQUIVO
-   leituraArquivo();
-
-   // IMAGENS
-   inicializaImagens();
-
    // MODO DE USO
-   modo_uso();
+   //modo_uso();
+
+   // INICIALIZANDO PONTOS E MANAGER
+   inicializaPontos();
+
+    manager_pontos->addPonto(80,80);
+    manager_pontos->addPonto(80,500);
+    manager_pontos->addPonto(500,500);
+    manager_pontos->addPonto(500,80);
+    manager_pontos->addPonto(120,80);
+    manager_pontos->addPonto(120,450);
+    manager_pontos->addPonto(450,450);
+    manager_pontos->addPonto(450,300);
+
+    cores = (Cor**)malloc(4*sizeof(Cor*));
+    cores[3] = verde;
+    cores[2] = azul;
+    cores[1] = rosa;
+    cores[0] = amarelo;
 
    // INICIANDO CANVAS
-   initCanvas(&screenWidth, &screenHeight, "Manipulacao de Figuras");
+   initCanvas(&screenWidth, &screenHeight, "Manipulacao de Curvas de Bezier");
 
    runCanvas();
 }

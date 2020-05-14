@@ -49,6 +49,8 @@
 		<Unit filename="src/Cor.h" />
 		<Unit filename="src/Figura.h" />
 		<Unit filename="src/Manager.h" />
+		<Unit filename="src/ManagerPontos.h" />
+		<Unit filename="src/Ponto.h" />
 		<Unit filename="src/bmp.cpp" />
 		<Unit filename="src/gl_canvas2d.cpp" />
 		<Unit filename="src/gl_canvas2d.h" />

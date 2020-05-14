@@ -245,6 +245,10 @@ void initCanvas(int *w, int *h, const char *title)
    glutMotionFunc(motion);
    glutMouseWheelFunc(mouseWheelCB);
 
+
+   //ANTIALIASING
+   glutSetOption(GLUT_MULTISAMPLE, 8);
+   glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_MULTISAMPLE);
    //printf("GL Version: %s", glGetString(GL_VERSION));
 }
 
