@@ -47,6 +47,7 @@ public:
   /* Botões utilizados*/
   Botao *btAddPonto = NULL;
   Botao *btRemovePonto = NULL;
+  Botao *btAnimacao = NULL;
 
 
 #endif

@@ -44,14 +44,12 @@
 			<Add library="..\lib\libopengl32.a" />
 		</Linker>
 		<Unit filename="include/GL/glut.h" />
-		<Unit filename="src/Bmp.h" />
 		<Unit filename="src/Botao.h" />
 		<Unit filename="src/Cor.h" />
-		<Unit filename="src/Figura.h" />
+		<Unit filename="src/Frames.h" />
 		<Unit filename="src/Manager.h" />
 		<Unit filename="src/ManagerPontos.h" />
 		<Unit filename="src/Ponto.h" />
-		<Unit filename="src/bmp.cpp" />
 		<Unit filename="src/gl_canvas2d.cpp" />
 		<Unit filename="src/gl_canvas2d.h" />
 		<Unit filename="src/main.cpp" />

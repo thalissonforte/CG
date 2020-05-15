@@ -7,14 +7,19 @@
 #include "gl_canvas2d.h"
 
 class ManagerPontos{
-  Ponto **pontos_controle;
-  Ponto **pontos_animados_vet;
-  Ponto **pontos_curva;
-  int quantidade_pontos;
-  bool habilitaCurva;
+    // VETORES DE PONTOS IMPORTANTES  
+    Ponto **pontos_controle;
+    Ponto **pontos_animados_vet;
+    Ponto **pontos_curva;
+
+    // INFORMACOES IMPORTANTES
+    int quantidade_pontos;
+    bool habilitaCurva;
+    int fps_pontos;
 
 private:
 
+    // DESENHO DAS LINHAS PRINCIPAIS E FIXAS
     void desenha_linhas(){
         if(quantidade_pontos > 1){
             Ponto *a;
@@ -36,6 +41,7 @@ private:
         return res;
     }
 
+    // POLINOMIO QUE CALCULA OS PONTOS DA CURVA
     Ponto * polinomio(int idx, float t){
         float res = 0, ni, j, resX = 0, resY = 0;
         int n = quantidade_pontos - 1;
@@ -49,14 +55,12 @@ private:
         }
 
         color(1,0,0);
-        //circle(resX, resY, 5, 50);
-
         Ponto *result_ponto = new Ponto(0, resX, resY);
         return result_ponto;
     }
 
+    // ----------------- DESENHO DOS OBJETOS ANIMADOS (PONTOS E LINHAS) ----------------------------
     void desenha_animacao_recursiva(int pontos_animados_feitos, int offset, int qtd_prox){
-        //printf("\nPontos que ja foram: %i\tOffset: %i\tPontos dessa rodada: %i", pontos_animados_feitos, offset, qtd_prox);
         if(qtd_prox < 2) return;
         int atual = qtd_prox;
 
@@ -82,26 +86,14 @@ private:
 
         desenha_animacao_recursiva(pontos_animados_feitos+atual, pontos_animados_feitos, qtd_prox-1);
     }
-
     void desenha_animacao(){
         // OBJETOS ANIMADOS
         int pontos_animados = quantidade_pontos-1;
         int linhas_animadas = quantidade_pontos-2;
-
-        // CRIANDO OS PONTOS A SEREM USADOS
-        //for(int i=0; i<pontos_animados; i++){
-            //pontos_animados_vet = (Ponto**)realloc(pontos_animados_vet, (pontos_animados)*sizeof(Ponto*));
-            //Ponto *p = new Ponto(1, pontos_controle[i]->getX(), pontos_controle[i]->getY());
-            //pontos_animados_vet[i] = p;
-
-        //}
-
-        //
         float x_a, y_a;
+
         for(int i=0; i<pontos_animados; i++){
-
-            polinomio(i, tempo);
-
+            color(1,0,0);
             x_a = (1-tempo)*(pontos_controle[i]->getX()) + tempo*(pontos_controle[i+1]->getX());
             y_a = (1-tempo)*(pontos_controle[i]->getY()) + tempo*(pontos_controle[i+1]->getY());
 
@@ -113,22 +105,17 @@ private:
 
             // RENDER NOS PONTOS INICIAIS
             pontos_animados_vet[i]->Render();
-
         }
-
         // CALCULO DE QUANTOS PONTOS FALTAM
         int pontos_faltantes = 0;
         for(int j = 2; j < pontos_animados; j++){
             pontos_faltantes += j;
         }
-
         desenha_animacao_recursiva(pontos_animados, 0, pontos_animados-1);
-
-        // LIBERANDO OS PONTOS ALOCADOS
-        //for()
-
     }
+    // -----------------------------------------------------------------------
 
+    // --------------- FUNCOES QUE GERENCIAM A CURVA E O DESENHO DELA
     void calculaCurva(){
 
         if(pontos_curva != NULL) free(pontos_curva);
@@ -144,16 +131,15 @@ private:
         }
         habilitaCurva = true;
     }
-
     void desenha_curva(){
-        
         if(habilitaCurva){
             for(int i=0; i < tempo/inc_tempo; i++){
-                circle(pontos_curva[i]->getX(), pontos_curva[i]->getY(), 2, 20);
+                circleFill(pontos_curva[i]->getX(), pontos_curva[i]->getY(), 2, 20);
             }
         }
-        
+
     }
+// ------------------------------------------------
 
 public:
     ManagerPontos(){
@@ -170,12 +156,12 @@ public:
         for(int i = 0; i<quantidade_pontos; i++){
             pontos_controle[i]->Render();
         }
+
+        // DESENHOS
         desenha_linhas();
-
         desenha_animacao();
-
         desenha_curva();
-        //calculaCurva();
+        
     }
 
   // VERIFICAR CLICK SOBRE PONTO
@@ -189,28 +175,18 @@ public:
         return id;
     }
 
-    void addPonto(int x, int y){
-        habilitaCurva = false;
-        Ponto *novoPonto = new Ponto(quantidade_pontos, x, y);
-        pontos_controle = (Ponto**)realloc(pontos_controle, (quantidade_pontos+1)*sizeof(Ponto*));
-        pontos_controle[quantidade_pontos] = novoPonto;
-        quantidade_pontos++;
+      
 
-        if(quantidade_pontos > 1){
-            desenha_linhas();
-        }
-
-        atualizaPontosAnimados();
-        calculaCurva();
-
+    // FUNCAO PARA SETAR FPS
+    void setFPS(int _fps){
+        fps_pontos = _fps;
     }
 
+    // ATUALIZACAO DOS DEMAIS PONTOS A CADA MODIFICACAO NA CURVA
     void atualizaPontosAnimados(){
         if(quantidade_pontos > 2){
-
             int pontos_animados = quantidade_pontos - 1;
             int sum = 0;
-
             // SOMAR O TOTAL DE PONTOS ANIMADOS QUE VAO EXISTIR (SE 4 PONTOS DE CONTROLE: 3 + 2 PONTOS ANIMADOS)
             for(int i=2; i<=pontos_animados; i++){
                 sum += i;
@@ -225,10 +201,12 @@ public:
         }
     }
 
+    // QUANTIDADE DE PONTOS
     int getQuantidadePontos(){
         return quantidade_pontos;
     }
 
+    // MOVIMENTO DO PONTO
     void moverPonto(int _id, int _x, int _y){
         habilitaCurva = false;
         (pontos_controle[_id])->addX(_x);
@@ -236,20 +214,32 @@ public:
         calculaCurva();
     }
 
+    // ADICIONAR E EXCLUIR PONTO
+        // GERENCIAMENTO ANTES DE ADICIONAR
     void addNovoPonto(){
         habilitaCurva = false;
         int _x = pontos_controle[quantidade_pontos-1]->getX();
         int _y = pontos_controle[quantidade_pontos-1]->getY();
 
-        addPonto((_x + 100) % screenWidth, (_y + 100) % screenHeight);
-        //atualizaPontosAnimados();
+        addPonto((_x + 100) % (screenWidth-260) + 30, (_y + 100) % (screenHeight - 90) + 60);
+    }
+        // FUNCAO QUE REALMENTE ADICIONA PONTO
+    void addPonto(int x, int y){
+        habilitaCurva = false;
+        Ponto *novoPonto = new Ponto(quantidade_pontos, x, y);
+        pontos_controle = (Ponto**)realloc(pontos_controle, (quantidade_pontos+1)*sizeof(Ponto*));
+        pontos_controle[quantidade_pontos] = novoPonto;
+        quantidade_pontos++;
 
+        if(quantidade_pontos > 1){
+            desenha_linhas();
+        }
+        atualizaPontosAnimados();
         calculaCurva();
     }
-
     void removePonto(){
         habilitaCurva = false;
-        if(quantidade_pontos > 0){
+        if(quantidade_pontos > 1){
             Ponto *p = pontos_controle[quantidade_pontos-1];
             quantidade_pontos -= 1;
             free(p);
@@ -257,6 +247,32 @@ public:
         calculaCurva();
     }
 
+    // FUNCAO AUXILIAR DE DESENHO DO GRAFICO
+    float blendFunct(int pos_x, int pos_y){
+
+        float x_a, y_a;
+        float ni, j;
+        int n = quantidade_pontos-1;
+
+        color(1, 0, 0);
+
+        for(int i=0; i <= n; i++){
+
+            for(float t=0; t<1; t += 0.00125){
+                ni = fatorial(n) / (fatorial(i) * fatorial(n - i));
+                j = ni * pow(t, i) * pow((1-t), (n-i));
+
+                point(pos_x + t*150, pos_y + 80*j);
+            }
+
+        }
+    }
 };
+// VARIAVEIS NECESSARIAS PARA CONTROLE
+    bool modo_animacao = false;
+    bool modoHold = false;
+    int inicioHoldX = -1;
+    int inicioHoldY = -1;
+    int ponto_selecionado;
 
 #endif

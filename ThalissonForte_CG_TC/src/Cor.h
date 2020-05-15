@@ -33,6 +33,8 @@ public:
   }
 
 };
+// Vetor Cores
+Cor **cores = NULL;
 
 /* Algumas cores default */
 Cor *preto = new Cor(0, 0, 0);

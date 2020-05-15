@@ -176,7 +176,7 @@
 	"gl_canvas2d.h"
 	<GL/glut.h>
 
-1589178984 source:d:\documentos\github\cg\thalissonforte_cg_tc\src\main.cpp
+1589502511 source:d:\documentos\github\cg\thalissonforte_cg_tc\src\main.cpp
 	<GL/glut.h>
 	<GL/freeglut_ext.h>
 	<math.h>
@@ -186,16 +186,14 @@
 	"Cor.h"
 	"Botao.h"
 	"Manager.h"
-	"Figura.h"
-	"Bmp.h"
-	"Pixel.h"
+	"Frames.h"
 	"Ponto.h"
 	"ManagerPontos.h"
 
-1587376727 d:\documentos\github\cg\thalissonforte_cg_tc\src\cor.h
+1589498543 d:\documentos\github\cg\thalissonforte_cg_tc\src\cor.h
 	"gl_canvas2d.h"
 
-1589177399 d:\documentos\github\cg\thalissonforte_cg_tc\src\botao.h
+1589500585 d:\documentos\github\cg\thalissonforte_cg_tc\src\botao.h
 	"gl_canvas2d.h"
 
 1586930959 d:\documentos\github\cg\thalissonforte_cg_tc\src\manager.h
@@ -208,6 +206,10 @@
 1589175947 d:\documentos\github\cg\thalissonforte_cg_tc\src\ponto.h
 	"gl_canvas2d.h"
 
-1589361181 d:\documentos\github\cg\thalissonforte_cg_tc\src\managerpontos.h
+1589499815 d:\documentos\github\cg\thalissonforte_cg_tc\src\managerpontos.h
 	"gl_canvas2d.h"
+
+1531759395 d:\documentos\github\cg\thalissonforte_cg_tc\src\frames.h
+	<stdio.h>
+	<time.h>
 
