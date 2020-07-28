@@ -3,89 +3,51 @@
 
 class Pistao{
 public:
+    // DIMENSOES E ANGULOS
     float x, y, z;
-    float largura, altura;
+    float raio, comprimento;
+    float angulo, angulo_x, angulo_y, angulo_x_3d, angulo_y_3d;
 
-    float angulo, angulo_x, angulo_y;
+    // CONFIGURACOES
+    bool modo_2d;
+    bool pistao_exibir, camisa_exibir;
+
+    // PARTES
+    Cilindro *pistao_real;
+    Cilindro *camisa;
 
     std::vector<Objeto*> Pontos;
 
-    Pistao(float origem_x, float origem_y, float origem_z, float larg, float alt){
+    Pistao(float origem_x, float origem_y, float origem_z, float r, float comp){
         // POSICAO ORIGINAL
         x = origem_x;
         y = origem_y;
         z = origem_z;
 
         // DIMENSOES
-        largura = larg;
-        altura = alt;
+        raio = r;
+        comprimento = comp;
 
         // ANGULO INICIAL
         angulo = 0;
         angulo_x = 0;
+        angulo_x_3d = 0;
         angulo_y = 0;
+        angulo_y_3d = 0;
+        modo_2d = false;
 
-        atualiza_pontos(x, y);
+        // CRIACAO E EXIBICAO DAS PARTES
+        pistao_real = new Cilindro(x, y, z, raio, comprimento, 1, 20, true);
+        camisa = new Cilindro(x, y - comprimento*3/4, z, raio+10, comprimento*2.5, 1, 10, false);
+        pistao_exibir = true;
+        camisa_exibir = true;
 
     }
 
     void desenhar(){
-        // RECALCULA ROTACAO
-        //rotacionar_biela();
-
-        float rotacaoX[3][3] = {
-            {1, 0, 0},
-            {0, cos(angulo_x), -sin(angulo_x)},
-            {0, sin(angulo_x), cos(angulo_x)}
-        };
-
-        float rotacaoY[3][3] = {
-            {cos(angulo_y), 0, -sin(angulo_y)},
-            {0, 1, 0},
-            {sin(angulo_y), 0, cos(angulo_y)}
-        };
-
-        float rotacaoZ[3][3] = {
-            {cos(angulo), -sin(angulo), 0},
-            {sin(angulo), cos(angulo), 0},
-            {0, 0, 1}
-        };
-
-
-
-         //printf("\n%f", angle);
-        std::vector<Objeto*> pontos_alterados;
-
-        // DESENHA OS PONTOS
-        for(int it = 0; it < Pontos.size(); it++){
-            Objeto *p_alterado;
-
-            // MATMUL ROTACAOEIXO E PONTO[IT]
-                // PRIMEIRA ROTACAO EM Z
-            //p_alterado = mulmat(rotacaoZ, Pontos[it], 3);
-            p_alterado = mulmat(rotacaoX, Pontos[it], 3);
-            p_alterado = mulmat(rotacaoY, p_alterado, 3);
-
-
-            //p_alterado = mulmat(rotacaoZ, p_alterado, 3);
-            // MATMUL PROJECAO E RESULTADO
-            //p_alterado = mulmat(projecao, p_alterado, 2);
-            p_alterado = mulmat(projecao, p_alterado, 2);
-            //POINT RESULTADO
-            point(p_alterado->x, p_alterado->y);
-            pontos_alterados.push_back(p_alterado);
-        }
-
-        // DESENHA AS LINHAS
-        int i;
-        for(i = 0; i < 4; i++){
-            line(pontos_alterados[i]->x, pontos_alterados[i]->y, pontos_alterados[(i+1)%4]->x, pontos_alterados[(i+1)%4]->y);
-            line(pontos_alterados[i+4]->x, pontos_alterados[i+4]->y, pontos_alterados[(i+1)%4 +4]->x, pontos_alterados[(i+1)%4 + 4]->y);
-            line(pontos_alterados[i]->x, pontos_alterados[i]->y, pontos_alterados[i+4]->x, pontos_alterados[i+4]->y);
-        }
-
-
-        limpa_vector(pontos_alterados);
+        // DESENHAR O CILINDRO DO PISTAO
+        if(pistao_exibir) pistao_real->desenhar();
+        if(camisa_exibir) camisa->desenhar();
     }
 
     void setAngulo(float angle){
@@ -97,27 +59,33 @@ public:
         x = _x;
         y = _y;
 
-        for(int i = 0; i < Pontos.size(); i++) free(Pontos[i]);
-
-        if(Pontos.size() > 0) Pontos.erase(Pontos.begin() + 0, Pontos.begin() + 8);
-
-        Pontos.push_back(new Objeto(_x - largura/2, _y - altura/2, z-10));
-        Pontos.push_back(new Objeto(_x + largura/2, _y - altura/2, z-10));
-        Pontos.push_back(new Objeto(_x + largura/2, _y + altura/2, z-10));
-        Pontos.push_back(new Objeto(_x - largura/2, _y + altura/2, z-10));
-
-        Pontos.push_back(new Objeto(_x - largura/2, _y - altura/2, z+10));
-        Pontos.push_back(new Objeto(_x + largura/2, _y - altura/2, z+10));
-        Pontos.push_back(new Objeto(_x + largura/2, _y + altura/2, z+10));
-        Pontos.push_back(new Objeto(_x - largura/2, _y + altura/2, z+10));
+        pistao_real->atualiza_pontos(x, y);
     }
 
     void rotacionar_x(float quantidade_rotacao){
-        angulo_x += quantidade_rotacao;
+        angulo_x_3d += quantidade_rotacao;
+        pistao_real->rotacionar_x(quantidade_rotacao);
+        camisa->rotacionar_x(quantidade_rotacao);
     }
 
     void rotacionar_y(float quantidade_rotacao){
-        angulo_y += quantidade_rotacao;
+        angulo_y_3d += quantidade_rotacao;
+        pistao_real->rotacionar_y(quantidade_rotacao);
+        camisa->rotacionar_y(quantidade_rotacao);
+    }
+
+    void change_pistao_exibir(){
+        pistao_exibir = !pistao_exibir;
+    }
+
+    void change_camisa_exibir(){
+        camisa_exibir = !camisa_exibir;
+    }
+
+    void change_modo(){
+        modo_2d = !modo_2d;
+        pistao_real->change_modo();
+        camisa->change_modo();
     }
 
 };

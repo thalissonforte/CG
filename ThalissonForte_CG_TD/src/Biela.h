@@ -1,3 +1,7 @@
+/*
+    CLASSE RESPONSAVEL PELA BIELA (LIGACAO ENTRE VIRABREQUIM E PISTAO)
+*/
+
 #ifndef BIELA_H
 #define BIELA_H
 
@@ -7,6 +11,8 @@ public:
     float raio, largura;
 
     float angulo, angulo_x, angulo_y;
+    float angulo_x_3d, angulo_y_3d;
+    bool modo_2d;
 
     std::vector<Objeto*> Pontos;
 
@@ -21,6 +27,7 @@ public:
         // DIMENSOES
         raio = r;
         largura = larg;
+        modo_2d = false;
 
         // REFERENCIA PARA O PISTAO
         pistao = pist;
@@ -35,9 +42,16 @@ public:
 
     }
 
+    // FUNCAO RESPONSAVEL PELO DESENHO DA BIELA
     void desenhar(){
-        // RECALCULA ROTACAO
-        //rotacionar_biela();
+
+        angulo_x = angulo_x_3d;
+        angulo_y = angulo_y_3d;
+
+        if(modo_2d){
+            angulo_x = 0;
+            angulo_y = 0;
+        }
 
         float rotacaoX[3][3] = {
             {1, 0, 0},
@@ -57,28 +71,19 @@ public:
             {0, 0, 1}
         };
 
-
-
-         //printf("\n%f", angle);
         std::vector<Objeto*> pontos_alterados;
 
         // DESENHA OS PONTOS
         for(int it = 0; it < Pontos.size(); it++){
             Objeto *p_alterado;
 
-
-
             // MATMUL ROTACAOEIXO E PONTO[IT]
-                // PRIMEIRA ROTACAO EM Z
-            //p_alterado = mulmat(rotacaoZ, Pontos[it], 3);
             p_alterado = mulmat(rotacaoX, Pontos[it], 3);
             p_alterado = mulmat(rotacaoY, p_alterado, 3);
 
-
-            //p_alterado = mulmat(rotacaoZ, p_alterado, 3);
             // MATMUL PROJECAO E RESULTADO
-            //p_alterado = mulmat(projecao, p_alterado, 2);
             p_alterado = mulmat(projecao, p_alterado, 2);
+
             //POINT RESULTADO
             point(p_alterado->x, p_alterado->y);
             pontos_alterados.push_back(p_alterado);
@@ -93,6 +98,7 @@ public:
         }
 
 
+        // LIMPAR E DESALOCAR VECTOR
         limpa_vector(pontos_alterados);
     }
 
@@ -100,12 +106,11 @@ public:
         angulo = angle;
     }
 
+    // ATUALIZACAO DOS PONTOS PARA CADA MUDANCA DE POSICAO
     void atualiza_pontos(float _x, float _y){
 
-
+        // BUSCA O ANGULO ENTRE OS PONTOS EM QUESTAO
         float angulacao = gerar_angulo_entre_pontos_2(_x, _y, pistao->x, pistao->y);
-        //printf("\nAngulo: %f graus", angulacao* 180 / PI);
-        //line(_x, _y, pistao->x, pistao->y);
 
         float ajuste[2] = {cos(angulacao), sin(angulacao)};
         if(angulacao < PI/2){
@@ -113,13 +118,11 @@ public:
             ajuste[0] = ajuste[1];
             ajuste[1] = a;
         }
-        
+
         float ajuste_biela = 10;
-        //printf("\n%f \t%f", ajuste[0], ajuste[1]);
 
         for(int i = 0; i < Pontos.size(); i++) free(Pontos[i]);
         if(Pontos.size() > 0) Pontos.erase(Pontos.begin() + 0, Pontos.begin() + 8);
-        printf("\nENTROU BUCETA %i", Pontos.size());
 
         Pontos.push_back(new Objeto(_x -  largura/2 * ajuste[0], - ajuste_biela + _y +  largura/2 * ajuste[1], z-10));
         Pontos.push_back(new Objeto(_x +  largura/2 * ajuste[0], - ajuste_biela + _y -  largura/2 * ajuste[1], z-10));
@@ -131,32 +134,18 @@ public:
         Pontos.push_back(new Objeto(pistao->x +  largura/4 * ajuste[0], - ajuste_biela + pistao->y -  largura/4 * ajuste[1], z+10));
         Pontos.push_back(new Objeto(pistao->x -  largura/4 * ajuste[0], - ajuste_biela + pistao->y +  largura/4 * ajuste[1], z+10));
 
-        /*
-        Pontos.push_back(new Objeto(_x - ajuste[0], _y - raio/4 - ajuste[1], z-10));
-        Pontos.push_back(new Objeto(_x + ajuste[0], _y - raio/4 - ajuste[1], z-10));
-        Pontos.push_back(new Objeto(x_pist + ajuste[0], _y + 3*raio/4 + ajuste[1], z-10));
-        Pontos.push_back(new Objeto(x_pist - ajuste[0], _y + 3*raio/4 + ajuste[1], z-10));
-
-        Pontos.push_back(new Objeto(_x - ajuste[0], _y - raio/4 - ajuste[1], z+10));
-        Pontos.push_back(new Objeto(_x + ajuste[0], _y - raio/4 - ajuste[1], z+10));
-        Pontos.push_back(new Objeto(x_pist + ajuste[0], _y + 3*raio/4 + ajuste[1], z+10));
-        Pontos.push_back(new Objeto(x_pist - ajuste[0], _y + 3*raio/4 + ajuste[1], z+10));
-        */
-
-        //printf("\n%f", distancia_entre_pontos(_x, _y, pistao->x, pistao->y));
-        
     }
 
     void rotacionar_x(float quantidade_rotacao){
-        angulo_x += quantidade_rotacao;
+        angulo_x_3d += quantidade_rotacao;
     }
 
     void rotacionar_y(float quantidade_rotacao){
-        angulo_y += quantidade_rotacao;
+        angulo_y_3d += quantidade_rotacao;
     }
 
-    void rotacionar_biela(){
-
+    void change_modo(){
+        modo_2d = !modo_2d;
     }
 
 };

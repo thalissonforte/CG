@@ -29,5 +29,6 @@ Cor *azul_fraco = new Cor(0.42745, 0.7255, 1);
 Cor *verde_fraco = new Cor(0.42745, 1, 0.60392);
 Cor *cinza = new Cor(0.6078, 0.6078, 0.6078);
 Cor *preto = new Cor(0, 0, 0);
+Cor *roxo = new Cor(0.2343, 0, 0.3515);
 
 #endif
