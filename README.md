@@ -23,7 +23,6 @@ Manipulação de Figuras - <a href="ThalissonForte_CG_TB">Trabalho B</a>
 Curvas de Bezier - <a href="ThalissonForte_CG_TC">Trabalho C</a>
 -----------------------------
 #### Preview:
-Em desenvolvimento
 <div aling="center">
     <img src="https://github.com/thalissonforte/CG/blob/master/ThalissonForte_CG_TC/preview.png">
 </div>
